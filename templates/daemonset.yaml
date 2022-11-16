@@ -18,7 +18,7 @@ spec:
         {{- include "k8s-node-install.selectorLabels" . | nindent 8 }}
     spec:
       hostPID: true
-      restartPolicy: Always
+      restartPolicy: OnFailure
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -43,7 +43,6 @@ spec:
           image: "{{ .Values.image.main.repository }}:{{ .Values.image.main.tag | default .Chart.AppVersion }}"
           command: [ "/register" ]
           args: ["--reset", "-p", "yes", "&&", "exit 0"]
-          restartPolicy: OnFailure
           imagePullPolicy: {{ .Values.image.main.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
