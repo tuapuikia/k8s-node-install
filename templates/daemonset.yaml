@@ -42,7 +42,8 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.main.repository }}:{{ .Values.image.main.tag | default .Chart.AppVersion }}"
           command: [ "/register" ]
-          args: ["--reset", "-p", "yes", "&&", "sleep infinity"]
+          args: ["--reset", "-p", "yes", "&&", "exit 0"]
+          restartPolicy: OnFailure
           imagePullPolicy: {{ .Values.image.main.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
