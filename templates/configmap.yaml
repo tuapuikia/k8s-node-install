@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: installer-config
+data:
+  {{ if .Values.installer.config }}
+  install.sh: {{ tpl (toYaml .Values.installer.config) $ | indent 2 }}
+  {{ end }}
+

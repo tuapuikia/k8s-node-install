@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Daemonset
+metadata:
+  name: {{ include "k8s-node-install.fullname" . }}
+  labels:
+    {{- include "k8s-node-install.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "k8s-node-install.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "k8s-node-install.selectorLabels" . | nindent 8 }}
+    spec:
+      hostPID: true
+      restartPolicy: Always
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: initContainer
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.preInit.repository }}:{{ index .Values.image.preInit.tag }}"
+          imagePullPolicy: {{ index .Values.image.preInit.pullPolicy }}
+          volumeMounts:
+            - name: installer-scripts
+              mountPath: /tmp
+            - name: host-mount
+              mountPath: /host
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.main.repository }}:{{ .Values.image.main.tag | default .Chart.AppVersion }}"
+          command: [ "/register" ]
+          args: ["--reset", "-p", "yes"]
+          imagePullPolicy: {{ .Values.image.main.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: installer-scripts
+          configMap:
+          name: installer-config
+        - name: host-mount
+          hostPath:
+          path: /tmp/install
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
