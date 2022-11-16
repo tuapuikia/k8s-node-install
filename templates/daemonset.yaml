@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Daemonset
+kind: DaemonSet
 metadata:
   name: {{ include "k8s-node-install.fullname" . }}
   labels:
