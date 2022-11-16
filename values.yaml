@@ -55,6 +55,6 @@ installer:
     if [ $package_required = "3" ]; then
     echo "Required packaged installed"
     else
-    apt-get -y install qemu binfmt-support qemu-user-static
+    apt-get update && apt-get -y install qemu binfmt-support qemu-user-static
     fi
     exit 0
