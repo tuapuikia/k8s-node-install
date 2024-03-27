@@ -18,6 +18,7 @@ spec:
         {{- include "k8s-node-install.selectorLabels" . | nindent 8 }}
     spec:
       hostPID: true
+      hostNetwork: true
       restartPolicy: Always
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
